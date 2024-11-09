@@ -202,7 +202,34 @@ class AsyncExcelFile:
         except Exception as exc:
             print(f"Failed to write to Excel: {exc}")
             return False
-    
+        
+    async def write_cells(self, data: Tuple[Tuple[int, int, Any]]) -> bool:
+        """
+        Write values to multiple cells in the Excel sheet.
+        
+        Args:
+            data: Tuple of tuples containing (row, column, value) data
+
+        Returns:
+            True if write successful, False otherwise
+
+        Raises:
+            ValueError: If sheet is not initialized
+        """
+        if not self._sheet:
+            raise ValueError("Excel sheet is not initialized")
+        
+        PREFIX = 1
+
+        try:
+            async with self._lock:
+                for row, column, value in data:
+                    self._sheet.Cells(row + PREFIX, column + PREFIX).Value = value
+            return True
+        except Exception as exc:
+            print(f"Failed to write to Excel: {exc}")
+            return False
+        
     async def close(self) -> None:
         """Clean up resources and close Excel connections."""
         self._is_watching = False
@@ -224,22 +251,3 @@ class AsyncExcelFile:
         """Save changes to the Excel file."""
         if self._workbook:
             self._workbook.Save()
-
-async def main() -> None:
-    """Main execution function demonstrating usage of AsyncExcelFile."""
-    excel_file = Path("test.xlsx")
-    sheet_name = "工作表1"
-    
-    async with await AsyncExcelFile.open(excel_file, sheet_name) as excel:
-        try:
-            while True:
-                data = await excel.read_data()
-                if data:
-                    print(data[:5])
-                
-                await asyncio.sleep(1)
-        except KeyboardInterrupt:
-            print("\nExiting...")
-
-if __name__ == "__main__":
-    asyncio.run(main())
