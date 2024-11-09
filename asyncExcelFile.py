@@ -209,12 +209,15 @@ class AsyncExcelFile:
         
         Args:
             data: Tuple of tuples containing (row, column, value) data
+<<<<<<< HEAD
 
         Returns:
             True if write successful, False otherwise
 
         Raises:
             ValueError: If sheet is not initialized
+=======
+>>>>>>> afe3ced969a7311e8326261b18d3ec1b6b073832
         """
         if not self._sheet:
             raise ValueError("Excel sheet is not initialized")
